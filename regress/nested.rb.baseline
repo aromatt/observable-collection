@@ -1,0 +1,4 @@
+
+Take a nested structure, pass it around, 99 problems and a reference ain't one
+update: {:b=>{:a=>"foo", :b=>{}}}
+update: {:b=>{:a=>"foo", :b=>{}, :c=>"set from nested reference"}}

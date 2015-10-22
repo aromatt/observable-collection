@@ -1,0 +1,6 @@
+Simple as can be...
+update: {:a=>"foo"}
+
+A little more complicated...
+update: {:a=>"foo", :b=>{}}
+update: {:a=>"foo", :b=>{:foo=>"bar"}}

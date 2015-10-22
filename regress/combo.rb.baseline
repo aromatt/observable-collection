@@ -1,0 +1,10 @@
+
+Use an array inside a hash
+update: {:a=>[]}
+update: [1]
+update: [1, 2]
+
+Put a hash inside the array
+update: [1, 2, {}]
+update: {:c=>"woot"}
+update: [1, 2, {:c=>"woot"}]

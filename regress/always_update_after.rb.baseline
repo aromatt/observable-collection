@@ -1,0 +1,5 @@
+
+We did not specify :always_update_after, so we will not receive updates unless we modify the hash.
+
+Even though we are not changing the hash, we receive an `:after` update
+update: {:foo=>:bar}
