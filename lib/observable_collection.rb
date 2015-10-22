@@ -83,8 +83,8 @@ class ObservableCollection
     # observer. If it's an ordinary collection, make it an ObservableCollection
     # and add myself as an observer. The exception is when result == @subject,
     # in which case we just want to return the subject unadorned. This is to
-    # avoid, e.g., puts() being unable to convert an ObservableArray to a regular
-    # Array the way it expects (this exception facilitates, e.g., `puts hash.values`)
+    # avoid, e.g., puts being unable to convert an observable array to a regular
+    # array the way it expects (this exception facilitates, e.g., `puts hash.values`)
     if result.is_a? ObservableCollection
       result.add_observer self
     elsif result != @subject
