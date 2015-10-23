@@ -15,24 +15,35 @@ require 'observer'
 class ObservableCollection
   include Observable
 
-  # Undefine some of the methods inherited from Object so that invocations of
-  # them are passed down to the subject via #method_missing below
+  # Undefine some inherited methods so that invocations of them are passed down
+  # to the subject via #method_missing below
   undef :to_s, :to_enum, :inspect, :is_a?, :kind_of?, :class
 
   attr_accessor :subject
 
+  # Options:
+  #   lock_file - path to a file used for locking
+  #   always_update_after - always call update after the collection is accessed,
+  #                         regardless of whether the methods are destructive
+  #                         (update is always called *before* the collection
+  #                         is accessed)
   def initialize(subject, opts = {})
     @subject = subject
     @lock_file = opts[:lock_file]
     @always_update_after = opts[:always_update_after]
   end
 
-  # Factory method - takes in an Array or a Hash, and the observer
-  def self.create(subject, observer = nil, *opts)
+  # Factory method - takes in an Array or a Hash, and the observer.
+  # Options are passed to constructor (see above).
+  # An additional option is :func, which specifies the name of the observer's
+  # update callback (defaults to :update as in the Observable module).
+  def self.create(subject, observer = nil, opts = {})
     observable = subject
     if [Array, Hash].include? observable.class
-      observable = ObservableCollection.new(subject, *opts)
-      observable.add_observer observer if observer
+      observable = ObservableCollection.new(subject, opts)
+      args = [observer]
+      args << opts[:func] if opts[:func]
+      observable.add_observer(*args) if observer
     end
     observable
   end
@@ -88,7 +99,9 @@ class ObservableCollection
     if result.is_a? ObservableCollection
       result.add_observer self
     elsif result != @subject
-      result = ObservableCollection.create(result, self, lock_file: @lock_file)
+      result = ObservableCollection.create(result, self,
+                                           lock_file: @lock_file,
+                                           always_update_after: @always_update_after)
     end
 
     if (DESTRUCTIVE.include? meth) || @always_update_after
