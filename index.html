@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Observable-collection : Ruby collections + Observable">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Observable-collection</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/aromatt/observable-collection">View on GitHub</a>
+
+          <h1 id="project_title">Observable-collection</h1>
+          <h2 id="project_tagline">Ruby collections + Observable</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/aromatt/observable-collection/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/aromatt/observable-collection/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="observable-collection" class="anchor" href="#observable-collection" aria-hidden="true"><span class="octicon octicon-link"></span></a>observable-collection</h1>
+
+<p>This is a simple way to add observers to Ruby arrays and hashes.</p>
+
+<p>Using nothing but clean, everyday Ruby syntax, you can register callbacks which are called whenever your collection (or any nested collection thereof) is updated.</p>
+
+<p>Observers of an ObservableCollection receive notifications just before and just after any method is invoked on your collection (or any of its nested collections).</p>
+
+<p>Example applications:</p>
+
+<ul>
+<li>Keeping a persistent copy of your collection on disk, which is read and written on every read/write of your collection</li>
+<li>Hiding database interactions behind Ruby data structure manipulations</li>
+</ul>
+
+<h2>
+<a id="testing" class="anchor" href="#testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing</h2>
+
+<p>To run the tests, run this command:</p>
+
+<pre><code>$ ./test/baseline
+</code></pre>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<h3>
+<a id="creating-an-observablecollection" class="anchor" href="#creating-an-observablecollection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating an ObservableCollection</h3>
+
+<p>Create an observable version of any Hash or Array like this:</p>
+
+<div class="highlight highlight-source-ruby"><pre>hash <span class="pl-k">=</span> <span class="pl-c1">ObservableCollection</span>.create({ <span class="pl-c1">foo:</span> <span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span> }, some_observer)</pre></div>
+
+<p>where <code>some_observer</code> is an object with an instance method called <code>update</code> (see below for details).</p>
+
+<h3>
+<a id="observing" class="anchor" href="#observing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Observing</h3>
+
+<p>The observer's <code>update</code> method should accept two arguments: (1) the observed collection and (2) a symbol (either <code>:before</code> of <code>:after</code>), indicating whether the collection is about to be updated (<code>:before</code>), or has just been updated (<code>:after</code>). For example</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">Observer</span>
+  <span class="pl-k">def</span> <span class="pl-en">update</span>(<span class="pl-smi">item</span>, <span class="pl-smi">kind</span>)
+    <span class="pl-k">if</span> kind <span class="pl-k">==</span> <span class="pl-c1">:after</span>
+      puts <span class="pl-s"><span class="pl-pds">"</span>item is about to be updated: <span class="pl-pse">#{</span><span class="pl-s1">item</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">"</span></span>
+    <span class="pl-k">else</span>
+      puts <span class="pl-s"><span class="pl-pds">"</span>item was just updated: <span class="pl-pse">#{</span><span class="pl-s1">item</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">"</span></span>
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span></pre></div>
+
+<h3>
+<a id="putting-it-all-together" class="anchor" href="#putting-it-all-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Putting it all together</h3>
+
+<p>Let's observe a collection!</p>
+
+<div class="highlight highlight-source-ruby"><pre>observer <span class="pl-k">=</span> <span class="pl-c1">Observer</span>.<span class="pl-k">new</span>
+hash <span class="pl-k">=</span> <span class="pl-c1">ObservableCollection</span>.create({ <span class="pl-c1">foo:</span> <span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span> }, observer)
+hash[<span class="pl-c1">:hello</span>] <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>world<span class="pl-pds">'</span></span></pre></div>
+
+<p>Output:</p>
+
+<pre><code>item is about to be updated: {:foo=&gt;"bar"}
+item was just updated: {:foo=&gt;"bar", :hello=&gt;"world"}
+</code></pre>
+
+<p>Alternatively, you may simply use ObservableCollection's constructor and add your observer manually:</p>
+
+<div class="highlight highlight-source-ruby"><pre>hash <span class="pl-k">=</span> <span class="pl-c1">ObservableCollection</span>.<span class="pl-k">new</span>({ <span class="pl-c1">foo:</span> <span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span> })
+hash.add_observer(<span class="pl-c1">Observer</span>.<span class="pl-k">new</span>)</pre></div>
+
+<p>Note that you can specify a custom update method name as a symbol, as the second argument to <code>add_observer</code>, or as the <code>:func</code> option when using the <code>create</code> factory method.</p>
+
+<p>See the tests (<code>regress/</code>) for more examples.</p>
+
+<h3>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Options</h3>
+
+<p>The following options are accepted by both the <code>create</code> factory method and the constructor (excluding <code>:func</code>).</p>
+
+<ul>
+<li>
+<code>:always_update_after</code> - <code>:after</code> updates only occur when a method known to modify collections is called (e.g. <code>&lt;&lt;=</code>, <code>push</code>, <code>pop</code>, <code>select!</code>). To override this behavior so that <code>:after</code> updates always occur regardless of the method being invoked, provide the option <code>:always_update_after =&gt; true</code> to <code>ObservableCollection.create()</code>.</li>
+<li>
+<code>:lock_file</code> - the path to a file used for locking access to the collection (currently not fully supported).</li>
+<li>
+<code>:func</code> - a custom update method (symbol) defined by your observer (defaults to <code>:update</code>).</li>
+</ul>
+
+<h2>
+<a id="future" class="anchor" href="#future" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future</h2>
+
+<ul>
+<li>Allow callbacks to change the args or even short-circuit invocations.</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Observable-collection maintained by <a href="https://github.com/aromatt">aromatt</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
