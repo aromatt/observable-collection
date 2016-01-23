@@ -1,5 +1,6 @@
 # observable-collection
 This is a simple way to add observers to Ruby arrays and hashes.
+
 [![Build Status](https://travis-ci.org/aromatt/thejub.pub.svg)](https://travis-ci.org/aromatt/observable-collection)
 
 Using nothing but clean, everyday Ruby syntax, you can register callbacks which are called whenever your collection (or any nested collection thereof) is updated.
