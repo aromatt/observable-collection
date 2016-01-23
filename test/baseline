@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
-# Credit to kkinion for this baseline tool
-
 require 'open3'
+
+def color(color, str)
+  sprintf "\e[%sm#{str}\e[0m", {red: 31, green: 32, blue: 34, yellow: 33}[color]
+end
 
 script = File.expand_path(__FILE__)
 Dir.chdir(File.dirname(script))
@@ -27,12 +29,13 @@ scenarios.each do |s|
   end
 end
 
+puts
 scenarios.sort.each do |s|
   b = s + ".baseline"
   name = File.absolute_path(s).split('regress/')[1]
   print (name + ':' + ' ' * 50)[0, 50]
   unless baseline or File.file?(b)
-    puts '[ BASELINE MISSING ]'
+    puts color :yellow, 'BASELINE MISSING'
     next
   end
 
@@ -44,35 +47,34 @@ scenarios.sort.each do |s|
   # Show the results
   if baseline
     if matches and File.file?(b)
-      puts '[ UP TO DATE ]'
+      puts color :blue, 'UP TO DATE'
       matched += 1
-    elsif s_out.downcase.include?('fatal')
-      puts '[ ERROR ]'
+    elsif status.exitstatus != 0
+      puts color :red, 'ERROR'
       puts s_out
-      puts "-- STDERR --"
       puts s_err
       failed += 1
     else
       File.write(b, s_out)
-      puts '[ BASELINED ]'
+      puts color :blue, "BASELINED (#{s_out.bytes.count} bytes)"
       updated += 1
     end
   else
     if matches
-      puts '[ PASSED ]'
+      puts color :green, 'PASSED'
       matched += 1
     else
-      puts '[ MISMATCH ]'
+      puts color :red, 'MISMATCH'
       failed += 1
       if verbose
-        File.write('/tmp/sedition_baseline.tmp', s_out)
-        puts `diff #{b} /tmp/sedition_baseline.tmp`
-
+        puts `echo '#{s_out}' | diff - #{b}`
         if !s_err.strip.empty? and verbose
-          puts "-- STDERR --"
           puts s_err
         end
       end
     end
   end
 end
+puts
+
+exit 1 if failed > 0
