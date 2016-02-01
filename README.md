@@ -1,11 +1,7 @@
-# observable-collection
-This is a simple way to add observers to Ruby arrays and hashes.
+# observable_collection [![Build Status](https://travis-ci.org/aromatt/thejub.pub.svg)](https://travis-ci.org/aromatt/observable-collection)
+This is a simple, dependency-free library that allows for event-based observation of collections. It provides a wrapper class for `Array` and `Hash` which uses the [Observable module](http://ruby-doc.org/stdlib-1.9.3/libdoc/observer/rdoc/Observable.html) to raise events when the underlying collection is updated.
 
-[![Build Status](https://travis-ci.org/aromatt/thejub.pub.svg)](https://travis-ci.org/aromatt/observable-collection)
-
-Using nothing but clean, everyday Ruby syntax, you can register callbacks which are called whenever your collection (or any nested collection thereof) is updated.
-
-Observers of an ObservableCollection receive notifications just before and just after any method is invoked on your collection (or any of its nested collections).
+When an observed collection (or any of its nested collections) is updated, oberservers' callbacks will be invoked just before and just after the update is carried out.
 
 Example applications:
 * Keeping a persistent copy of your collection on disk, which is read and written on every read/write of your collection
