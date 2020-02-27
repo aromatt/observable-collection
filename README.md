@@ -20,7 +20,7 @@ The observer's `update` method should accept two arguments: (1) the observed col
 ```ruby
 class Observer
   def update(item, kind)
-    if kind == :after
+    if kind == :before
       puts "item is about to be updated: #{item}"
     else
       puts "item was just updated: #{item}"
